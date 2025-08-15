@@ -232,12 +232,12 @@
 
           <h3 class="text-2xl font-bold mb-4 text-gray-800">Comment :</h3>
                 <div v-if="paginatedComments.length > 0">
-        <div 
-          v-for="comment in paginatedComments" 
-          :key="comment.id" 
-          class="bg-gray-50 p-4 rounded-lg mb-4 border"
-          v-show="comment.text"
-        >
+                  <div 
+            v-for="comment in paginatedComments" 
+            :key="comment.id" 
+            class="bg-gray-50 p-4 rounded-lg mb-4 border"
+            v-show="comment.text || comment.image"
+          >
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center">
               <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
@@ -252,30 +252,39 @@
             </div>
           </div>
           <div class="ml-11">
-            <p class="text-gray-700 mb-2">{{ comment.text }}</p>
-            <div class="flex items-center text-sm">
-              <span class="text-gray-600">Vote : </span>
-              <span
-                :class="{
-                  'text-green-600': comment.vote === 'real',
-                  'text-red-600': comment.vote === 'fake'
-                }"
-                class="font-semibold ml-1"
-              >
-                {{ comment.vote === 'real' ? 'Real' : 'Fake' }}
-              </span>
-              <span class="text-gray-600 ml-4">evidence?</span>
-            </div>
-            <img 
-              v-if="comment.image" 
-              :src="comment.image" 
-              alt="Comment Image" 
-              class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover"
-            >
-          </div>
+  <!-- Only show text paragraph if there is text -->
+  <p v-if="comment.text" class="text-gray-700 mb-2">{{ comment.text }}</p>
+  
+  <!-- Vote on its own line -->
+  <div class="flex items-center text-sm mb-1">
+    <span class="text-gray-600">Vote : </span>
+    <span
+      :class="{
+        'text-green-600': comment.vote === 'real',
+        'text-red-600': comment.vote === 'fake'
+      }"
+      class="font-semibold ml-1"
+    >
+      {{ comment.vote === 'real' ? 'Real' : 'Fake' }}
+    </span>
+  </div>
+
+      <!-- Evidence on new line if image exists -->
+      <div v-if="comment.image" class="flex items-center text-sm mb-2">
+        <span class="text-gray-600">Evidence :</span>
+      </div>
+          
+          <!-- Show image if it exists -->
+          <img 
+            v-if="comment.image" 
+            :src="comment.image" 
+            alt="Comment Image" 
+            class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover"
+          >
         </div>
-        <Pagination
-          :total-items="commentsWithText.length"
+        </div>
+          <Pagination
+          :total-items="commentsWithContent.length"
           :items-per-page="commentsPerPage"
           :current-page="commentPage"
           @page-changed="commentPage = $event"
@@ -312,9 +321,8 @@ const paginatedComments = computed<Comment[]>(() => {
   if (!news.value) return [];
   const start = (commentPage.value - 1) * commentsPerPage.value;
   const end = start + commentsPerPage.value;
-  return commentsWithText.value.slice(start, end);
+  return commentsWithContent.value.slice(start, end);
 });
-
 
 const fakeVotes = computed(() => news.value?.voteSummary?.fake || 0);
 const realVotes = computed(() => news.value?.voteSummary?.real || 0);
@@ -340,8 +348,10 @@ const voterName = ref<string>('');
 const voterComment = ref<string>('');
 const voterImage = ref<string>('');
 
-const commentsWithText = computed(() => 
-  news.value ? news.value.comments.filter(c => c.text && c.text.trim().length > 0) : []
+const commentsWithContent = computed(() => 
+  news.value ? news.value.comments.filter(c => 
+    (c.text && c.text.trim().length > 0) || (c.image && c.image.trim().length > 0)
+  ) : []
 );
 
 const submitVote = () => {
