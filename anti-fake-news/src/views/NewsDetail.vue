@@ -316,7 +316,7 @@ const newsId = parseInt(route.params.id as string);
 const news = computed(() => store.getNewsById(newsId));
 
 const commentPage = ref<number>(1);
-const commentsPerPage = ref<number>(5);
+const commentsPerPage = ref<number>(3);
 const paginatedComments = computed<Comment[]>(() => {
   if (!news.value) return [];
   const start = (commentPage.value - 1) * commentsPerPage.value;
