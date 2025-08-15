@@ -45,7 +45,6 @@ import { useNotificationStore, type NotificationType } from '../stores/notificat
 
 const notificationStore = useNotificationStore();
 const { notifications } = storeToRefs(notificationStore);
-const { removeNotification } = notificationStore;
 
 const getStatusClass = (type: NotificationType) => {
   switch (type) {
