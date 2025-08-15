@@ -332,18 +332,6 @@ const fakePercentage = computed(() => {
   return Math.round((fakeVotes.value / total) * 100);
 });
 
-
-// Calculate percentages
-const realPercentage = computed(() => {
-  if (totalVotes.value === 0) return 0;
-  return Math.round((realVotes.value / totalVotes.value) * 100);
-});
-
-const fakePercentage = computed(() => {
-  if (totalVotes.value === 0) return 0;
-  return Math.round((fakeVotes.value / totalVotes.value) * 100);
-});
-
 const activeTab = ref<'comments' | 'vote'>('comments');
 
 // Vote form data
