@@ -16,6 +16,10 @@
           class="px-4 py-2 rounded-lg font-medium border transition-colors duration-200  hover:bg-red-500 hover:text-white">
           Fake
         </button>
+        <button @click="filterStatus = 'equal'" :class="{ 'bg-gray-600 text-white': filterStatus === 'equal' }"
+          class="px-4 py-2 rounded-lg font-medium border transition-colors duration-200 hover:bg-gray-500 hover:text-white">
+          Equal
+        </button>
       </div>
 
       <div class="flex items-center space-x-2">
@@ -48,7 +52,8 @@ import Pagination from '@/components/BasePagination.vue';
 import type { News } from '../stores/news';
 
 const store = useNewsStore();
-const filterStatus = ref<'all' | 'fake' | 'not fake'>('all');
+// Change this line
+const filterStatus = ref<'all' | 'fake' | 'not fake' | 'equal'>('all');
 const currentPage = ref<number>(1);
 const newsPerPage = ref<number>(5);
 

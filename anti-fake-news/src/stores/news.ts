@@ -44,33 +44,41 @@ export const useNewsStore = defineStore('news', {
      * @returns {News | undefined} ข้อมูลข่าวสารพร้อมสถานะ หรือ undefined หากไม่พบ
      */
     getNewsById: (state) => (id: number): News | undefined => {
-      const newsItem = state.allNews.find(news => news.id === id);
-      if (!newsItem) return undefined;
+  const newsItem = state.allNews.find(news => news.id === id);
+  if (!newsItem) return undefined;
 
-      const calculatedStatus: 'fake' | 'not fake' =
-        newsItem.voteSummary.real > newsItem.voteSummary.fake ? 'not fake' : 'fake';
+  let calculatedStatus: 'fake' | 'not fake' | 'equal';
+  if (newsItem.voteSummary.real > newsItem.voteSummary.fake) {
+    calculatedStatus = 'not fake';
+  } else if (newsItem.voteSummary.real < newsItem.voteSummary.fake) {
+    calculatedStatus = 'fake';
+  } else {
+    calculatedStatus = 'equal';
+  }
 
-      return { ...newsItem, status: calculatedStatus };
-    },
+  return { ...newsItem, status: calculatedStatus };
+},
+// src/stores/news.ts
 
-    /**
-     * ดึงรายการข่าวทั้งหมดหรือกรองตามสถานะ พร้อมคำนวณสถานะ (fake/not fake) ให้แต่ละข่าว
-     * @param {'all' | 'fake' | 'not fake'} statusFilter - ตัวกรองสถานะ
-     * @returns {News[]} รายการข่าวที่ถูกกรองและมีสถานะ
-     */
-    getNewsWithStatus: (state) => (statusFilter: 'all' | 'fake' | 'not fake'): News[] => {
-      const allNewsWithStatus = state.allNews.map(news => {
-        const calculatedStatus: 'fake' | 'not fake' =
-          news.voteSummary.real > news.voteSummary.fake ? 'not fake' : 'fake';
+getNewsWithStatus: (state) => (statusFilter: 'all' | 'fake' | 'not fake' | 'equal'): News[] => {
+  const allNewsWithStatus = state.allNews.map(news => {
+    let calculatedStatus: 'fake' | 'not fake' | 'equal';
+    if (news.voteSummary.real > news.voteSummary.fake) {
+      calculatedStatus = 'not fake';
+    } else if (news.voteSummary.real < news.voteSummary.fake) {
+      calculatedStatus = 'fake';
+    } else {
+      calculatedStatus = 'equal';
+    }
 
-        return { ...news, status: calculatedStatus };
-      });
+    return { ...news, status: calculatedStatus };
+  });
 
-      if (statusFilter === 'all') {
-        return allNewsWithStatus;
-      }
-      return allNewsWithStatus.filter(news => news.status === statusFilter);
-    },
+  if (statusFilter === 'all') {
+    return allNewsWithStatus;
+  }
+  return allNewsWithStatus.filter(news => news.status === statusFilter);
+},
   },
   actions: {
     /**
