@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../views/HomePage.vue'
 import NewsDetail from '../views/NewsDetail.vue'
+import VotePage from '@/views/VotePage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,6 +16,11 @@ const router = createRouter({
       name: 'news-detail',
       component: NewsDetail,
     },
+    {
+      path: '/vote/:id',
+      name: 'VotePage',
+      component: VotePage,
+},
   ],
 })
 

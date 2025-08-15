@@ -10,7 +10,8 @@
           <span
             :class="{
               'bg-red-600': news.status === 'fake',
-              'bg-green-600': news.status === 'not fake'
+              'bg-green-600': news.status === 'not fake',
+              'bg-yellow-600': news.status === 'equal'
             }"
             class="text-white font-bold px-3 py-1 rounded-full uppercase"
           >
@@ -27,33 +28,32 @@
           class="w-full h-auto rounded-lg mb-8"
         >
         
+        <!-- Buttons Row -->
+        <div class="flex justify-end space-x-3 mb-6">
+          <button
+            @click="scrollToComments"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-5 rounded-lg shadow"
+          >
+            View Comments & Votes
+          </button>
+          <button
+            @click="goToVotePage"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-5 rounded-lg shadow"
+          >
+            Vote
+          </button>
+        </div>
+
+        <p class="font-bold text-black-700">Full Detail :</p>
         <p class="text-lg text-gray-800 leading-relaxed mb-10 whitespace-pre-line">{{ news.fullDetail }}</p>
-        
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">All Comments & Votes</h3>
         <div class="bg-gray-100 p-6 rounded-xl mb-8">
-          <h3 class="text-2xl font-bold mb-4 text-gray-800">Vote & Comment</h3>
+          <h3 class=" font-bold mb-4 text-gray-800">Vote Summary : {{ news.status === 'fake' ? 'Fake News' : 'Not Fake' }} </h3>
           <div class="flex items-center mb-4 space-x-2">
             <p class="font-medium text-gray-700">Vote:</p>
-            <button
-              @click="voteStatus = 'real'"
-              :class="{'bg-green-600 text-white': voteStatus === 'real'}"
-              class="px-4 py-2 rounded-lg font-medium border-2 transition-colors duration-200"
-            >
-              Not Fake
-            </button>
-            <button
-              @click="voteStatus = 'fake'"
-              :class="{'bg-red-600 text-white': voteStatus === 'fake'}"
-              class="px-4 py-2 rounded-lg font-medium border-2 transition-colors duration-200"
-            >
-              Fake
-            </button>
+           
           </div>
-          <input v-model="userName" placeholder="Username" class="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <textarea v-model="commentText" placeholder="Write your comment here..." class="w-full p-3 border rounded-lg mb-4 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-          <input v-model="imageLink" placeholder="Image URL (optional)" class="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <button @click="submitComment" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200">
-            Submit
-          </button>
+
         </div>
         
         <h3 class="text-2xl font-bold mb-4 text-gray-800">Comments ({{ news.comments.length }})</h3>
@@ -93,21 +93,20 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute , useRouter } from 'vue-router';
 import { useNewsStore } from '../stores/news';
 import Pagination from '../components/BasePagination.vue';
 import type { Comment } from '../stores/news';
-
 const route = useRoute();
 const store = useNewsStore();
+const router = useRouter();
+
+const goToVotePage = () => {
+  router.push({ name: 'VotePage', params: { id: newsId } });
+};
 
 const newsId = parseInt(route.params.id as string);
 const news = computed(() => store.getNewsById(newsId));
-
-const userName = ref<string>('');
-const voteStatus = ref<'real' | 'fake' | null>(null);
-const commentText = ref<string>('');
-const imageLink = ref<string | null>(null);
 
 const commentPage = ref<number>(1);
 const commentsPerPage = ref<number>(5);
@@ -118,22 +117,11 @@ const paginatedComments = computed<Comment[]>(() => {
   return news.value.comments.slice(start, end);
 });
 
-const submitComment = () => {
-  if (voteStatus.value && userName.value && commentText.value) {
-    store.addCommentToNews(
-      newsId,
-      userName.value,
-      commentText.value,
-      imageLink.value,
-      voteStatus.value
-    );
-    userName.value = '';
-    voteStatus.value = null;
-    commentText.value = '';
-    imageLink.value = null;
-    alert('Thank you for your submission!');
-  } else {
-    alert('Please select a vote, enter your name, and write a comment.');
-  }
+const voteSection = ref<HTMLElement | null>(null);
+
+const scrollToComments = () => {
+  voteSection.value?.scrollIntoView({ behavior: 'smooth' });
 };
+
+
 </script>
