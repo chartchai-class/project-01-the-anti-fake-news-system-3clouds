@@ -4,20 +4,40 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
       <h1 class="text-4xl font-bold mb-6 text-gray-800">3Clouds News</h1>
       <div class="flex space-x-2">
-        <button @click="filterStatus = 'all'" :class="{ 'bg-blue-600 text-white': filterStatus === 'all' }"
-          class="px-4 py-2 rounded-lg font-medium border transition-colors duration-200 hover:bg-blue-500 hover:text-white">
+        <button @click="filterStatus = 'all'" :class="[
+          'px-4 py-2 rounded-lg font-medium border transition-colors duration-200',
+          {
+            'bg-blue-600 text-white': filterStatus === 'all',
+            'bg-white text-gray-800 hover:bg-blue-500 hover:text-white': filterStatus !== 'all'
+          }
+        ]">
           All
         </button>
-        <button @click="filterStatus = 'not fake'" :class="{ 'bg-green-600 text-white': filterStatus === 'not fake' }"
-          class="px-4 py-2 rounded-lg font-medium border transition-colors duration-200 hover:bg-green-500 hover:text-white">
+        <button @click="filterStatus = 'not fake'" :class="[
+          'px-4 py-2 rounded-lg font-medium border transition-colors duration-200',
+          {
+            'bg-green-600 text-white': filterStatus === 'not fake',
+            'bg-white text-gray-800 hover:bg-green-500 hover:text-white': filterStatus !== 'not fake'
+          }
+        ]">
           Real
         </button>
-        <button @click="filterStatus = 'fake'" :class="{ 'bg-red-600 text-white': filterStatus === 'fake' }"
-          class="px-4 py-2 rounded-lg font-medium border transition-colors duration-200  hover:bg-red-500 hover:text-white">
+        <button @click="filterStatus = 'fake'" :class="[
+          'px-4 py-2 rounded-lg font-medium border transition-colors duration-200',
+          {
+            'bg-red-600 text-white': filterStatus === 'fake',
+            'bg-white text-gray-800 hover:bg-red-500 hover:text-white': filterStatus !== 'fake'
+          }
+        ]">
           Fake
         </button>
-        <button @click="filterStatus = 'equal'" :class="{ 'bg-gray-600 text-white': filterStatus === 'equal' }"
-          class="px-4 py-2 rounded-lg font-medium border transition-colors duration-200 hover:bg-gray-500 hover:text-white">
+        <button @click="filterStatus = 'equal'" :class="[
+          'px-4 py-2 rounded-lg font-medium border transition-colors duration-200',
+          {
+            'bg-gray-600 text-white': filterStatus === 'equal',
+            'bg-white text-gray-800 hover:bg-gray-500 hover:text-white': filterStatus !== 'equal'
+          }
+        ]">
           Equal
         </button>
       </div>
@@ -39,8 +59,13 @@
       No news found
     </div>
 
-    <Pagination :total-items="filteredNews.length" :items-per-page="newsPerPage" :current-page="currentPage"
-      @page-changed="currentPage = $event" class="mt-8" />
+    <Pagination
+      :total-items="filteredNews.length"
+      :items-per-page="newsPerPage"
+      :current-page="currentPage"
+      @page-changed="onPageChanged"
+      class="mt-8"
+    />
   </div>
 </template>
 
@@ -52,7 +77,6 @@ import Pagination from '@/components/BasePagination.vue';
 import type { News } from '../stores/news';
 
 const store = useNewsStore();
-// Change this line
 const filterStatus = ref<'all' | 'fake' | 'not fake' | 'equal'>('all');
 const currentPage = ref<number>(1);
 const newsPerPage = ref<number>(5);
@@ -61,10 +85,18 @@ onMounted(() => {
   store.fetchNews();
 });
 
-// A watcher to reset the current page to 1 whenever the filter status changes
 watch(filterStatus, () => {
   currentPage.value = 1;
 });
+
+watch(newsPerPage, () => {
+  currentPage.value = 1;
+});
+
+const onPageChanged = (page: number) => {
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 const filteredNews = computed<News[]>(() => {
   return store.getNewsWithStatus(filterStatus.value);
