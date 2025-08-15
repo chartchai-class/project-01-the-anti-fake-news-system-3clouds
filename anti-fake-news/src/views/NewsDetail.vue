@@ -1,8 +1,6 @@
 <template>
   <div v-if="news" class="container mx-auto p-4 max-w-4xl">
-    <router-link to="/" class="text-blue-600 hover:underline mb-4 inline-block font-medium"
-      >&lt; Back to Home</router-link
-    >
+    <router-link to="/" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&lt; Back to Home</router-link>
 
     <div class="bg-white shadow-lg rounded-xl overflow-hidden">
       <div class="p-6">
@@ -12,27 +10,14 @@
           <span
             :class="{
               'bg-red-600': news.status === 'fake',
-              'bg-green-600': news.status === 'not fake',
-              'bg-gray-500': news.status === 'equal',
-
+              'bg-green-600': news.status === 'not fake'
             }"
             class="text-white font-bold px-3 py-1 rounded-full uppercase"
           >
-            {{
-              news.status === 'fake'
-                ? 'Fake News'
-                : news.status === 'not fake'
-                  ? 'Real'
-                  : 'Equal'
-            }}
+            {{ news.status === 'fake' ? 'Fake News' : 'Not Fake' }}
           </span>
-          <p>
-            Reporter: <span class="font-semibold">{{ news.reporter }}</span>
-          </p>
-          <p>
-            Date:
-            <span class="font-semibold">{{ new Date(news.dateTime).toLocaleDateString() }}</span>
-          </p>
+          <p>Reporter: <span class="font-semibold">{{ news.reporter }}</span></p>
+          <p>Date: <span class="font-semibold">{{ new Date(news.dateTime).toLocaleDateString() }}</span></p>
         </div>
 
         <img
@@ -46,25 +31,25 @@
         <p class="text-lg text-gray-800 leading-relaxed mb-10 whitespace-pre-line">{{ news.fullDetail }}</p>
         
         <!-- Navigation Tabs -->
-        <div class="bg-gray-100 p-4 rounded-xl mb-6">
-          <div class="flex space-x-1">
+        <div class="mb-6">
+          <div class="flex space-x-8 border-b border-gray-200">
             <button
               @click="activeTab = 'comments'"
               :class="{
-                'bg-white text-gray-800 shadow': activeTab === 'comments',
-                'bg-transparent text-gray-600 hover:text-gray-800': activeTab !== 'comments'
+                'text-black border-black': activeTab === 'comments',
+                'text-gray-600 border-transparent hover:text-gray-800': activeTab !== 'comments'
               }"
-              class="px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+              class="pb-3 px-1 border-b-2 font-medium transition-colors duration-200"
             >
               All Comments
             </button>
             <button
               @click="activeTab = 'vote'"
               :class="{
-                'bg-white text-gray-800 shadow': activeTab === 'vote',
-                'bg-transparent text-gray-600 hover:text-gray-800': activeTab !== 'vote'
+                'text-black border-black': activeTab === 'vote',
+                'text-gray-600 border-transparent hover:text-gray-800': activeTab !== 'vote'
               }"
-              class="px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+              class="pb-3 px-1 border-b-2 font-medium transition-colors duration-200"
             >
               Vote
             </button>
@@ -139,30 +124,54 @@
 
           <!-- Vote Summary -->
           <div>
-            <h3 class="text-xl font-bold mb-4 text-gray-800">Vote Summary</h3>
             <div class="bg-white p-6 rounded-xl border">
-              <!-- Vote Chart -->
-              <div class="flex items-end space-x-8 mb-6 h-40">
-                <div class="flex flex-col items-center">
-                  <div 
-                    class="bg-green-500 rounded-t-lg mb-2 min-h-[20px]"
-                    :style="{ height: realVotes > 0 ? `${(realVotes / Math.max(totalVotes, 1)) * 120}px` : '20px' }"
-                  ></div>
-                  <span class="text-sm font-semibold">Real</span>
-                  <span class="text-xs text-gray-600">{{ realVotes }}</span>
+              <div class="mb-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">
+                  Vote Summary : 
+                  <span
+                    :class="{
+                      'bg-red-600': fakeVotes > realVotes,
+                      'bg-green-600': realVotes > fakeVotes,
+                      'bg-gray-500': realVotes === fakeVotes
+                    }"
+                    class="text-white font-bold px-3 py-1 rounded text-sm uppercase ml-2"
+                  >
+                    {{ fakeVotes > realVotes ? 'FAKE' : realVotes > fakeVotes ? 'REAL' : 'EQUAL' }}
+                  </span>
+                </h3>
+              </div>
+
+              <!-- Real Votes Progress Bar -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">Real</span>
+                  <span class="text-sm text-gray-600">{{ realPercentage }}% ({{ realVotes }} votes)</span>
                 </div>
-                <div class="flex flex-col items-center">
+                <div class="w-full bg-gray-200 rounded-full h-4">
                   <div 
-                    class="bg-red-500 rounded-t-lg mb-2 min-h-[20px]"
-                    :style="{ height: fakeVotes > 0 ? `${(fakeVotes / Math.max(totalVotes, 1)) * 120}px` : '20px' }"
+                    class="bg-green-500 h-4 rounded-full transition-all duration-300"
+                    :style="{ width: `${realPercentage}%` }"
                   ></div>
-                  <span class="text-sm font-semibold">Fake</span>
-                  <span class="text-xs text-gray-600">{{ fakeVotes }}</span>
                 </div>
               </div>
-              
-              <div class="text-center">
-                <p class="text-lg font-semibold text-gray-800">Total Votes: {{ totalVotes }}</p>
+
+              <!-- Fake Votes Progress Bar -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">Fake</span>
+                  <span class="text-sm text-gray-600">{{ fakePercentage }}% ({{ fakeVotes }} votes)</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                  <div 
+                    class="bg-red-500 h-4 rounded-full transition-all duration-300"
+                    :style="{ width: `${fakePercentage}%` }"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Total Votes -->
+              <div class="text-right border-t pt-3 mt-4">
+                <span class="text-sm font-semibold text-gray-800">Total: {{ totalVotes }} Votes</span>
               </div>
             </div>
           </div>
@@ -171,35 +180,53 @@
         <!-- Comments Section -->
         <div v-if="activeTab === 'comments'">
           <div class="bg-gray-100 p-6 rounded-xl mb-8">
-            <h3 class="font-bold mb-6 text-gray-800">Vote Summary : 
-              <span
-              :class="{
-                'bg-red-600': news.status === 'fake',
-                'bg-green-600': news.status === 'not fake',
+            <div class="mb-4">
+              <h3 class="text-lg font-bold text-gray-800 mb-2">
+                Vote Summary : 
+                <span
+                  :class="{
+                    'bg-red-600': fakeVotes > realVotes,
+                    'bg-green-600': realVotes > fakeVotes,
+                    'bg-gray-500': realVotes === fakeVotes
+                  }"
+                  class="text-white font-bold px-3 py-1 rounded text-sm uppercase ml-2"
+                >
+                  {{ fakeVotes > realVotes ? 'FAKE' : realVotes > fakeVotes ? 'REAL' : 'EQUAL' }}
+                </span>
+              </h3>
+            </div>
 
-              }"
-              class="text-white font-bold px-3 py-1 rounded-full uppercase"
-            >
-              {{ news.status === 'fake' ? 'Fake News' : 'Not Fake' }}
-            </span>
-            </h3>
-            
-            <!-- Updated Vote Summary Cards -->
-            <div class="grid grid-cols-3 gap-4 mb-6">
-              <div class="bg-red-100 border-2 border-red-200 rounded-2xl p-6 text-center">
-                <h4 class="text-lg font-bold text-gray-800 mb-3">Fake</h4>
-                <p class="text-2xl font-bold text-red-600">{{ fakeVotes }} votes</p>
+            <!-- Real Votes Progress Bar -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Real</span>
+                <span class="text-sm text-gray-600">{{ realPercentage }}% ({{ realVotes }} votes)</span>
               </div>
-              
-              <div class="bg-green-100 border-2 border-green-200 rounded-2xl p-6 text-center">
-                <h4 class="text-lg font-bold text-gray-800 mb-3">Real</h4>
-                <p class="text-2xl font-bold text-green-600">{{ realVotes }} votes</p>
+              <div class="w-full bg-gray-200 rounded-full h-4">
+                <div 
+                  class="bg-green-500 h-4 rounded-full transition-all duration-300"
+                  :style="{ width: `${realPercentage}%` }"
+                ></div>
               </div>
-              
-              <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 text-center">
-                <h4 class="text-lg font-bold text-gray-800 mb-3">Total</h4>
-                <p class="text-2xl font-bold text-gray-700">{{ totalVotes }} Votes</p>
+            </div>
+
+            <!-- Fake Votes Progress Bar -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Fake</span>
+                <span class="text-sm text-gray-600">{{ fakePercentage }}% ({{ fakeVotes }} votes)</span>
               </div>
+              <div class="w-full bg-gray-200 rounded-full h-4">
+                <div 
+                  class="bg-red-500 h-4 rounded-full transition-all duration-300"
+                  :style="{ width: `${fakePercentage}%` }"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Total Votes -->
+            <div class="text-right border-t pt-3 mt-4">
+              <span class="text-sm font-semibold text-gray-800">Total: {{ totalVotes }} Votes</span>
             </div>
           </div>
 
@@ -256,7 +283,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref, computed } from 'vue';
 import { useRoute  } from 'vue-router';
 import { useNewsStore } from '../stores/news';
@@ -266,21 +292,34 @@ import type { Comment } from '../stores/news';
 const route = useRoute();
 const store = useNewsStore();
 
-const newsId = parseInt(route.params.id as string)
-const news = computed(() => store.getNewsById(newsId))
 
-const commentPage = ref<number>(1)
-const commentsPerPage = ref<number>(5)
+const newsId = parseInt(route.params.id as string);
+const news = computed(() => store.getNewsById(newsId));
+
+const commentPage = ref<number>(1);
+const commentsPerPage = ref<number>(5);
 const paginatedComments = computed<Comment[]>(() => {
-  if (!news.value) return []
-  const start = (commentPage.value - 1) * commentsPerPage.value
-  const end = start + commentsPerPage.value
-  return news.value.comments.slice(start, end)
-})
+  if (!news.value) return [];
+  const start = (commentPage.value - 1) * commentsPerPage.value;
+  const end = start + commentsPerPage.value;
+  return news.value.comments.slice(start, end);
+});
+
 
 const fakeVotes = computed(() => news.value ? news.value.comments.filter(c => c.vote === 'fake').length : 0);
 const realVotes = computed(() => news.value ? news.value.comments.filter(c => c.vote === 'real').length : 0);
 const totalVotes = computed(() => news.value ? news.value.comments.length : 0);
+
+// Calculate percentages
+const realPercentage = computed(() => {
+  if (totalVotes.value === 0) return 0;
+  return Math.round((realVotes.value / totalVotes.value) * 100);
+});
+
+const fakePercentage = computed(() => {
+  if (totalVotes.value === 0) return 0;
+  return Math.round((fakeVotes.value / totalVotes.value) * 100);
+});
 
 const activeTab = ref<'comments' | 'vote'>('comments');
 
