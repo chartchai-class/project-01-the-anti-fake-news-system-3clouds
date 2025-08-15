@@ -97,11 +97,10 @@
                 </div>
             </div>
             <Pagination
-                ref="paginationRef"
                 :total-items="commentsWithContent.length"
                 :items-per-page="commentsPerPage"
                 :current-page="commentPage"
-                @page-changed="onCommentPageChanged"
+                @page-changed="commentPage = $event"
                 class="mt-6"
             />
         </div>
@@ -110,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps } from 'vue';
+import { ref, computed, defineProps, watch } from 'vue'; // เพิ่ม watch เข้ามา
 import Pagination from './BasePagination.vue';
 import type { Comment, VoteSummary } from '../stores/news';
 
@@ -119,19 +118,19 @@ const props = defineProps<{
     voteSummary: VoteSummary;
 }>();
 
-const commentsSection = ref<HTMLElement | null>(null); // โค้ดที่ใช้ ref นี้
+const commentsSection = ref<HTMLElement | null>(null);
 const commentPage = ref<number>(1);
 const commentsPerPage = ref<number>(3);
 
-const onCommentPageChanged = (page: number) => {
-  commentPage.value = page;
-  // ใช้ ref ของ container หลักแทน paginationRef
-  setTimeout(() => {
-    if (commentsSection.value) {
-      commentsSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, 200);
-};
+// Watcher ที่จะตรวจสอบการเปลี่ยนแปลงของ commentPage
+watch(commentPage, () => {
+    // ใช้ setTimeout เพื่อรอให้ DOM อัปเดตก่อนทำการเลื่อน
+    setTimeout(() => {
+        if (commentsSection.value) {
+            commentsSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 100);
+});
 
 const commentsWithContent = computed(() => 
     props.comments.filter(c => 
