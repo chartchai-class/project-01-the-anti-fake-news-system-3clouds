@@ -274,9 +274,22 @@ const paginatedComments = computed<Comment[]>(() => {
 });
 
 
-const fakeVotes = computed(() => news.value ? news.value.comments.filter(c => c.vote === 'fake').length : 0);
-const realVotes = computed(() => news.value ? news.value.comments.filter(c => c.vote === 'real').length : 0);
-const totalVotes = computed(() => news.value ? news.value.comments.length : 0);
+const fakeVotes = computed(() => news.value?.voteSummary?.fake || 0);
+const realVotes = computed(() => news.value?.voteSummary?.real || 0);
+const totalVotes = computed(() => fakeVotes.value + realVotes.value);
+
+const realPercentage = computed(() => {
+  const total = totalVotes.value;
+  if (total === 0) return 0;
+  return Math.round((realVotes.value / total) * 100);
+});
+
+const fakePercentage = computed(() => {
+  const total = totalVotes.value;
+  if (total === 0) return 0;
+  return Math.round((fakeVotes.value / total) * 100);
+});
+
 
 const activeTab = ref<'comments' | 'vote'>('comments');
 
