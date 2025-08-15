@@ -25,7 +25,7 @@ export interface News {
     fake: number;
   };
   comments: Comment[];
-  status?: 'fake' | 'not fake' | 'equal';
+  status?: 'fake' | 'not fake';
 }
 
 interface NewsState {
