@@ -231,48 +231,58 @@
           </div>
 
           <h3 class="text-2xl font-bold mb-4 text-gray-800">Comment :</h3>
-          <div v-if="paginatedComments.length > 0">
-            <div v-for="comment in paginatedComments" :key="comment.id" class="bg-gray-50 p-4 rounded-lg mb-4 border">
-              <div class="flex items-center mb-3">
-                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                  <span class="text-sm font-bold text-gray-600">{{ comment.user.charAt(0).toUpperCase() }}</span>
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold text-gray-800">{{ comment.user }}</p>
-                  <div class="flex items-center text-sm text-gray-500">
-                    <span>Date :</span>
-                    <span class="ml-2">Time :</span>
-                  </div>
-                </div>
+                <div v-if="paginatedComments.length > 0">
+        <div 
+          v-for="comment in paginatedComments" 
+          :key="comment.id" 
+          class="bg-gray-50 p-4 rounded-lg mb-4 border"
+          v-show="comment.text"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center">
+              <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
+                <span class="text-sm font-bold text-gray-600">{{ comment.user.charAt(0).toUpperCase() }}</span>
               </div>
-              <div class="ml-11">
-                <p class="text-gray-700 mb-2">Comment :</p>
-                <p class="text-gray-700 mb-2">{{ comment.text }}</p>
-                <div class="flex items-center text-sm">
-                  <span class="text-gray-600">Vote : </span>
-                  <span
-                    :class="{
-                      'text-green-600': comment.vote === 'real',
-                      'text-red-600': comment.vote === 'fake'
-                    }"
-                    class="font-semibold ml-1"
-                  >
-                    {{ comment.vote === 'real' ? 'Real' : 'Fake' }}
-                  </span>
-                  <span class="text-gray-600 ml-4">evidence?</span>
-                </div>
-                <img v-if="comment.image" :src="comment.image" alt="Comment Image" class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover">
-              </div>
+              <p class="font-bold text-gray-800">{{ comment.user }}</p>
             </div>
-            <Pagination
-              :total-items="news.comments.length"
-              :items-per-page="commentsPerPage"
-              :current-page="commentPage"
-              @page-changed="commentPage = $event"
-              class="mt-6"
-            />
+            <div class="text-sm text-gray-500">
+              <span>{{ new Date(comment.time).toLocaleDateString() }}</span>
+              <span class="mx-2">|</span>
+              <span>{{ new Date(comment.time).toLocaleTimeString() }}</span>
+            </div>
           </div>
-          <p v-else class="text-gray-500 italic">No comments yet.</p>
+          <div class="ml-11">
+            <p class="text-gray-700 mb-2">{{ comment.text }}</p>
+            <div class="flex items-center text-sm">
+              <span class="text-gray-600">Vote : </span>
+              <span
+                :class="{
+                  'text-green-600': comment.vote === 'real',
+                  'text-red-600': comment.vote === 'fake'
+                }"
+                class="font-semibold ml-1"
+              >
+                {{ comment.vote === 'real' ? 'Real' : 'Fake' }}
+              </span>
+              <span class="text-gray-600 ml-4">evidence?</span>
+            </div>
+            <img 
+              v-if="comment.image" 
+              :src="comment.image" 
+              alt="Comment Image" 
+              class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover"
+            >
+          </div>
+        </div>
+        <Pagination
+          :total-items="commentsWithText.length"
+          :items-per-page="commentsPerPage"
+          :current-page="commentPage"
+          @page-changed="commentPage = $event"
+          class="mt-6"
+        />
+      </div>
+      <p v-else class="text-gray-500 italic">No comments yet.</p>
         </div>
       </div>
     </div>
@@ -302,7 +312,7 @@ const paginatedComments = computed<Comment[]>(() => {
   if (!news.value) return [];
   const start = (commentPage.value - 1) * commentsPerPage.value;
   const end = start + commentsPerPage.value;
-  return news.value.comments.slice(start, end);
+  return commentsWithText.value.slice(start, end);
 });
 
 
@@ -328,6 +338,10 @@ const selectedVote = ref<'fake' | 'real' | null>(null);
 const voterName = ref<string>('');
 const voterComment = ref<string>('');
 const voterImage = ref<string>('');
+
+const commentsWithText = computed(() => 
+  news.value ? news.value.comments.filter(c => c.text && c.text.trim().length > 0) : []
+);
 
 const submitVote = () => {
   if (!selectedVote.value || !news.value) {
