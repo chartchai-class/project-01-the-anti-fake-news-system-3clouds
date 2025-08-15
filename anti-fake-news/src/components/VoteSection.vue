@@ -125,7 +125,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['submitVote']);
 
-// Vote form data
 const selectedVote = ref<'fake' | 'real' | null>(null);
 const voterName = ref<string>('');
 const voterComment = ref<string>('');
@@ -149,7 +148,7 @@ const fakePercentage = computed(() => {
 
 const submitVote = () => {
     if (!selectedVote.value) {
-        alert('Please select your vote (Real or Fake)');
+        // ส่วนนี้จะถูกแทนที่ด้วย modal ใน component หลัก
         return;
     }
     
