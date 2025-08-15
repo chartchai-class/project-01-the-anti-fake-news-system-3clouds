@@ -5,7 +5,7 @@
       :disabled="isFirstPage"
       class="px-4 py-2 rounded-full border bg-white text-gray-600 disabled:opacity-70 disabled:cursor-not-allowed flex items-center hover:bg-gray-400 hover:text-white disabled:hover:bg-white disabled:hover:text-gray-600"
     >
-      <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
       Previous

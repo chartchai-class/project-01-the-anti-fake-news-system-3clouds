@@ -1,14 +1,14 @@
 <template>
-    <div>
+    <div ref="commentsSection">
         <div class="bg-gray-100 p-6 rounded-xl mb-8">
             <div class="mb-4">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">
                     Vote Summary : 
                     <span
                         :class="{
-                            'bg-red-600': voteSummary.fake > voteSummary.real,
-                            'bg-green-600': voteSummary.real > voteSummary.fake,
-                            'bg-gray-500': voteSummary.real === voteSummary.fake
+                            'bg-red-600': fakeVotes > realVotes,
+                            'bg-green-600': realVotes > fakeVotes,
+                            'bg-gray-500': realVotes === fakeVotes
                         }"
                         class="text-white font-bold px-3 py-1 rounded text-sm uppercase ml-2"
                     >
@@ -49,7 +49,7 @@
         </div>
 
         <h3 class="text-2xl font-bold mb-4 text-gray-800">Comment :</h3>
-        <div v-if="commentsWithContent.length > 0">
+        <div v-if="paginatedComments.length > 0">
             <div 
                 v-for="comment in paginatedComments" 
                 :key="comment.id" 
@@ -97,10 +97,11 @@
                 </div>
             </div>
             <Pagination
+                ref="paginationRef"
                 :total-items="commentsWithContent.length"
                 :items-per-page="commentsPerPage"
                 :current-page="commentPage"
-                @page-changed="commentPage = $event"
+                @page-changed="onCommentPageChanged"
                 class="mt-6"
             />
         </div>
@@ -118,8 +119,19 @@ const props = defineProps<{
     voteSummary: VoteSummary;
 }>();
 
+const commentsSection = ref<HTMLElement | null>(null); // โค้ดที่ใช้ ref นี้
 const commentPage = ref<number>(1);
 const commentsPerPage = ref<number>(3);
+
+const onCommentPageChanged = (page: number) => {
+  commentPage.value = page;
+  // ใช้ ref ของ container หลักแทน paginationRef
+  setTimeout(() => {
+    if (commentsSection.value) {
+      commentsSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 200);
+};
 
 const commentsWithContent = computed(() => 
     props.comments.filter(c => 
