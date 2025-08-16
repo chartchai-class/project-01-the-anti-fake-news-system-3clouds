@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4">
 
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
-      <h1 class="text-4xl font-bold mb-6 text-gray-800">3Clouds News</h1>
+      <h1 class="text-4xl font-bold items-center mb-6 text-blue-800">3Clouds News</h1>
       <div class="flex space-x-2">
         <button @click="filterStatus = 'all'" :class="[
           'px-4 py-2 rounded-lg font-medium border transition-colors duration-200',
@@ -67,20 +67,11 @@
       class="mt-8"
     />
 
-    <RouterLink
-      to="/add-news"
-      class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors duration-200"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-    </RouterLink>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { RouterLink } from 'vue-router'; // Import RouterLink
 import { useNewsStore } from '../stores/news';
 import NewsCard from '@/components/NewsCard.vue';
 import Pagination from '@/components/BasePagination.vue';
