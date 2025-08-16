@@ -6,9 +6,9 @@
 ### Members
 | Student ID | Name |
 |------------|------|
-| [662115028] | [Nuanwan Wongrat]    |
-| [662115042] | [Rattikan Muangmoon] |
-| [662115053] | [Muanpee Thising]    |
+| 662115028 | Nuanwan Wongrat    |
+| 662115042 | Rattikan Muangmoon |
+| 662115053 | Muanpee Thising    |
 
 
 ---
