@@ -137,7 +137,8 @@
             v-if="comment.image"
             :src="comment.image"
             alt="Comment Image"
-            class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover"
+            class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover cursor-pointer"
+            @click="showFullImage(comment.image)"
           />
         </div>
       </div>
@@ -150,6 +151,19 @@
       />
     </div>
     <p v-else class="text-gray-500 italic">No comments match the filter.</p>
+
+    <div v-if="showImagePopup" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" @click="closePopup">
+      <div class="relative max-w-5xl max-h-full" @click.stop>
+        <button
+          @click="closePopup"
+          class="absolute -top-10 right-0 text-white text-4xl font-light hover:text-gray-300 transition-colors"
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <img :src="selectedImage" alt="Full size comment image" class="max-w-full max-h-screen-75 object-contain rounded-lg shadow-xl" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -168,6 +182,21 @@ const commentsPerPage = ref<number>(3);
 const filterOption = ref<'all' | 'real' | 'fake'>('all');
 const sortOption = ref<'newest' | 'oldest'>('newest');
 const commentsSection = ref<HTMLElement | null>(null);
+
+// State for the image pop-up
+const showImagePopup = ref<boolean>(false);
+const selectedImage = ref<string | null>(null);
+
+// Functions to handle the pop-up
+const showFullImage = (imageUrl: string) => {
+  selectedImage.value = imageUrl;
+  showImagePopup.value = true;
+};
+
+const closePopup = () => {
+  showImagePopup.value = false;
+  selectedImage.value = null;
+};
 
 // Watcher to scroll to the top of the comments section when the page changes
 watch(commentPage, () => {
