@@ -82,8 +82,9 @@
         </select>
       </div>
     </div>
+    
+    <SearchBar v-model="searchQuery" />
 
-    <!-- Loading state -->
     <div v-if="isDataLoading || isFilterLoading" class="text-center text-gray-500 text-xl py-20">
       <div class="inline-flex flex-col items-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
@@ -92,31 +93,28 @@
       </div>
     </div>
 
-    <!-- News grid -->
     <div v-else-if="paginatedNews.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <NewsCard v-for="news in paginatedNews" :key="news.id" :news="news" />
     </div>
     
-    <!-- No news found -->
     <div v-else class="text-center text-gray-500 text-xl py-10">
       <div class="flex flex-col items-center">
         <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
         <h3 class="text-lg font-medium mb-1">No news found</h3>
-        <p class="text-sm text-gray-400">Try changing your filter or check back later</p>
+        <p class="text-sm text-gray-400">Try changing the filter or search terms.</p>
       </div>
     </div>
 
     <Pagination
       v-if="!isDataLoading && !isFilterLoading && paginatedNews.length"
-      :total-items="filteredNews.length"
+      :total-items="filteredAndSearchedNews.length"
       :items-per-page="newsPerPage"
       :current-page="currentPage"
       @page-changed="onPageChanged"
       class="mt-8"
     />
-
   </div>
 </template>
 
@@ -127,6 +125,7 @@ import { useNewsStore } from '../stores/news';
 import { useLoadingStore } from '../stores/loading';
 import NewsCard from '@/components/NewsCard.vue';
 import Pagination from '@/components/BasePagination.vue';
+import SearchBar from '@/components/SearchBar.vue';
 import type { News } from '../stores/news';
 
 const route = useRoute();
@@ -143,6 +142,9 @@ const newsPerPage = ref<number>(Number(route.query.perPage) || 6);
 const isDataLoading = ref(false);
 const isFilterLoading = ref(false);
 const pendingFilter = ref<'all' | 'fake' | 'not fake' | 'equal' | null>(null);
+
+// ** เพิ่มตัวแปรสำหรับ Search **
+const searchQuery = ref<string>((route.query.search as string) || '');
 
 const fetchNewsData = async () => {
   try {
@@ -203,6 +205,10 @@ const updateURL = async () => {
   if (newsPerPage.value !== 6) {
     query.perPage = String(newsPerPage.value);
   }
+  // ** เพิ่มคำค้นหาลงใน URL **
+  if (searchQuery.value) {
+    query.search = searchQuery.value;
+  }
 
   // อัปเดต URL โดยไม่ trigger navigation ใหม่
   await router.replace({
@@ -210,6 +216,7 @@ const updateURL = async () => {
     query
   });
 };
+
 onMounted(() => {
   fetchNewsData();
 });
@@ -225,9 +232,19 @@ watch(() => route.query, (newQuery) => {
   if (newQuery.perPage && Number(newQuery.perPage) !== newsPerPage.value) {
     newsPerPage.value = Number(newQuery.perPage);
   }
+  // ** ตรวจสอบการเปลี่ยนแปลงของคำค้นหาใน URL **
+  if (newQuery.search && newQuery.search !== searchQuery.value) {
+    searchQuery.value = newQuery.search as string;
+  }
 });
 
 watch(newsPerPage, () => {
+  currentPage.value = 1;
+  updateURL();
+});
+
+// ** Watch คำค้นหา **
+watch(searchQuery, () => {
   currentPage.value = 1;
   updateURL();
 });
@@ -238,13 +255,28 @@ const onPageChanged = (page: number) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+// ** เพิ่ม computed property เพื่อกรองข่าวตามสถานะก่อน **
 const filteredNews = computed<News[]>(() => {
   return store.getNewsWithStatus(filterStatus.value);
 });
 
+// ** เพิ่ม computed property เพื่อกรองข่าวตามคำค้นหา **
+const filteredAndSearchedNews = computed<News[]>(() => {
+  if (!searchQuery.value) {
+    return filteredNews.value;
+  }
+  const query = searchQuery.value.toLowerCase();
+  return filteredNews.value.filter(news =>
+    news.topic.toLowerCase().includes(query) ||
+    news.fullDetail.toLowerCase().includes(query) ||
+    news.reporter.toLowerCase().includes(query)
+  );
+});
+
+// ** แก้ไข paginatedNews ให้ใช้ข้อมูลที่ถูกกรองและค้นหาแล้ว **
 const paginatedNews = computed<News[]>(() => {
   const start = (currentPage.value - 1) * newsPerPage.value;
   const end = start + newsPerPage.value;
-  return filteredNews.value.slice(start, end);
+  return filteredAndSearchedNews.value.slice(start, end);
 });
 </script>
