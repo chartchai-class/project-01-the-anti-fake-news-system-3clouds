@@ -76,9 +76,9 @@
           v-model="newsPerPage" 
           :disabled="isFilterLoading || isDataLoading"
           class="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-          <option>5</option>
-          <option>10</option>
-          <option>20</option>
+          <option>6</option>
+          <option>12</option>
+          <option>24</option>
         </select>
       </div>
     </div>
@@ -139,7 +139,7 @@ const filterStatus = ref<'all' | 'fake' | 'not fake' | 'equal'>(
   (route.query.filter as 'all' | 'fake' | 'not fake' | 'equal') || 'all'
 );
 const currentPage = ref<number>(Number(route.query.page) || 1);
-const newsPerPage = ref<number>(Number(route.query.perPage) || 5);
+const newsPerPage = ref<number>(Number(route.query.perPage) || 6);
 const isDataLoading = ref(false);
 const isFilterLoading = ref(false);
 const pendingFilter = ref<'all' | 'fake' | 'not fake' | 'equal' | null>(null);
@@ -200,7 +200,7 @@ const updateURL = async () => {
   if (currentPage.value !== 1) {
     query.page = String(currentPage.value);
   }
-  if (newsPerPage.value !== 5) {
+  if (newsPerPage.value !== 6) {
     query.perPage = String(newsPerPage.value);
   }
 
