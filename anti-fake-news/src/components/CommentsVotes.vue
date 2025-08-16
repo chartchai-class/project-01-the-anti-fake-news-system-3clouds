@@ -47,8 +47,8 @@
 
     <div v-if="filteredAndSortedComments.length > 0">
       <CommentItem
-        v-for="comment in paginatedComments"
-        :key="comment.id"
+        v-for="(comment, index) in paginatedComments"
+        :key="`${comment.id}-${index}-${commentPage}`"
         :comment="comment"
         @show-full-image="showFullImage"
       />
@@ -79,10 +79,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, defineProps } from 'vue';
+import { ref, computed, watch, defineProps, nextTick } from 'vue';
 import Pagination from './BasePagination.vue';
-import VoteSummary from './VoteSummary.vue'; // นำเข้าคอมโพเนนต์ใหม่
-import CommentItem from './CommentItem.vue'; // นำเข้าคอมโพเนนต์ใหม่
+import VoteSummary from './VoteSummary.vue';
+import CommentItem from './CommentItem.vue';
 import type { Comment, VoteSummary as VoteSummaryType } from '../stores/news';
 
 const props = defineProps<{
@@ -111,7 +111,8 @@ const closePopup = () => {
 };
 
 // Watcher to scroll to the bottom of the page when the page changes
-watch(commentPage, () => {
+watch(commentPage, async () => {
+  await nextTick(); // รอให้ DOM อัพเดท
   setTimeout(() => {
     window.scrollTo({ 
       top: document.body.scrollHeight, 
@@ -125,6 +126,15 @@ watch([filterOption, sortOption], () => {
   commentPage.value = 1;
 });
 
+// เพิ่ม watcher สำหรับ props.comments เพื่อรีเซ็ต pagination เมื่อข้อมูลเปลี่ยน
+watch(() => props.comments, () => {
+  // ตรวจสอบว่าหน้าปัจจุบันยังมีข้อมูลหรือไม่
+  const totalPages = Math.ceil(filteredAndSortedComments.value.length / commentsPerPage.value);
+  if (commentPage.value > totalPages && totalPages > 0) {
+    commentPage.value = totalPages;
+  }
+}, { deep: true });
+
 const commentsWithContent = computed(() =>
   props.comments.filter(
     (c) => (c.text && c.text.trim().length > 0) || (c.image && c.image.trim().length > 0)
@@ -132,13 +142,13 @@ const commentsWithContent = computed(() =>
 );
 
 const filteredAndSortedComments = computed<Comment[]>(() => {
-  let filteredComments = commentsWithContent.value;
+  let filteredComments = [...commentsWithContent.value]; // สร้าง array ใหม่
 
   if (filterOption.value !== 'all') {
     filteredComments = filteredComments.filter((c) => c.vote === filterOption.value);
   }
 
-  const sortedComments = [...filteredComments].sort((a, b) => {
+  const sortedComments = filteredComments.sort((a, b) => {
     const timeA = new Date(a.time).getTime();
     const timeB = new Date(b.time).getTime();
     if (sortOption.value === 'newest') {
