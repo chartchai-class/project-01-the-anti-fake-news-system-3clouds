@@ -3,6 +3,7 @@
     <Navbar />
     <RouterView />
     <ToastNotification />
+    <ScrollButtons />
   </div>
 </template>
 
@@ -10,4 +11,5 @@
 import { RouterView } from 'vue-router';
 import Navbar from './components/TheNavbar.vue';
 import ToastNotification from './components/ToastNotification.vue';
+import ScrollButtons from './components/ScrollButtons.vue';
 </script>
