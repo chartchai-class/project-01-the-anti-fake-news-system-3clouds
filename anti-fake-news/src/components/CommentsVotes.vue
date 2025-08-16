@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="commentsSection">
     <div class="bg-gray-100 p-6 rounded-xl mb-8">
       <div class="mb-4">
         <h3 class="text-lg font-bold text-gray-800 mb-2">
@@ -167,6 +167,22 @@ const commentPage = ref<number>(1);
 const commentsPerPage = ref<number>(3);
 const filterOption = ref<'all' | 'real' | 'fake'>('all');
 const sortOption = ref<'newest' | 'oldest'>('newest');
+const commentsSection = ref<HTMLElement | null>(null);
+
+// Watcher to scroll to the top of the comments section when the page changes
+watch(commentPage, () => {
+  // Use a slight delay to allow the DOM to update before scrolling
+  setTimeout(() => {
+    if (commentsSection.value) {
+      commentsSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
+});
+
+// Watchers to reset the page to 1 when a filter or sort option changes
+watch([filterOption, sortOption], () => {
+  commentPage.value = 1;
+});
 
 // ฟังก์ชันสำหรับสร้างสีพาสเทลที่สดใสจากชื่อผู้ใช้
 const getProfileColor = (username: string) => {
@@ -210,10 +226,6 @@ const paginatedComments = computed<Comment[]>(() => {
   const start = (commentPage.value - 1) * commentsPerPage.value;
   const end = start + commentsPerPage.value;
   return filteredAndSortedComments.value.slice(start, end);
-});
-
-watch([filterOption, sortOption], () => {
-  commentPage.value = 1;
 });
 
 const fakeVotes = computed(() => props.voteSummary.fake || 0);
