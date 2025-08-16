@@ -8,7 +8,7 @@
         </router-link>
 
         <router-link to="/" class="absolute left-1/2 -translate-x-1/2" @click="refreshPage">
-          <span class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors duration-200">
+          <span class="text-4xl font-extrabold text-my-blue hover:text-blue-400 transition-colors duration-200">
             3Clouds News
           </span>
         </router-link>

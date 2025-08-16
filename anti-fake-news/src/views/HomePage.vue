@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4">
 
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
-      <h1 class="text-4xl font-bold items-center mb-6 text-blue-800">3Clouds News</h1>
+      <h1 class="text-4xl font-normal text-blue-500 font-alfa-slab ">3Clouds News</h1>
       <div class="flex space-x-2">
         <button @click="filterStatus = 'all'" :class="[
           'px-4 py-2 rounded-lg font-medium border transition-colors duration-200',
