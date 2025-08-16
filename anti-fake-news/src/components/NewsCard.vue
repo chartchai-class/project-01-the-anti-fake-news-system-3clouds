@@ -21,7 +21,7 @@
       >
       <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4">
         <h3 class="text-white text-lg font-bold text-center drop-shadow-lg line-clamp-2">
-          {{ news.topic }}
+          <span v-html="highlightText(news.topic, searchQuery)"></span>
         </h3>
       </div>
     </div>
@@ -36,7 +36,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>
         <h3 class="text-gray-500 text-lg text-center font-bold px-4 line-clamp-2">
-          {{ news.topic }}
+          <span v-html="highlightText(news.topic, searchQuery)"></span>
         </h3>
       </div>
     </div>
@@ -74,7 +74,7 @@
     <!-- Content Section -->
     <div class="p-6 pt-0">
       <p class="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
-        {{ news.shortDetail }}
+        <span v-html="highlightText(news.shortDetail, searchQuery)"></span>
       </p>
       
       <!-- Meta Information -->
@@ -83,7 +83,7 @@
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
           </svg>
-          {{ news.reporter }}
+          <span v-html="highlightText(news.reporter, searchQuery)"></span>
         </p>
         <p class="flex items-center">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,6 +108,14 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
       </div>
+
+      <!-- Search Match Indicator -->
+      <div v-if="searchQuery && hasMatch" class="mt-3 flex items-center text-xs text-blue-600">
+        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Search match found
+      </div>
     </div>
   </div>
 
@@ -120,22 +128,50 @@
       <span class="text-gray-600 text-sm">Loading news...</span>
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import type { News } from '../stores/news';
 
 interface Props {
   news: News;
+  searchQuery?: string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  searchQuery: ''
+});
+
 const router = useRouter();
 const route = useRoute();
 const isNavigating = ref(false);
+
+// Highlight function
+const highlightText = (text: string, searchQuery: string): string => {
+  if (!searchQuery || !text) return text;
+  
+  const query = searchQuery.trim();
+  if (!query) return text;
+  
+  // Escape special regex characters and create case-insensitive regex
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
+  
+  return text.replace(regex, '<mark class="bg-yellow-200 text-yellow-900 px-0.5 py-0.5 rounded font-semibold">$1</mark>');
+};
+
+// Check if search query matches any content
+const hasMatch = computed(() => {
+  if (!props.searchQuery) return false;
+  
+  const query = props.searchQuery.toLowerCase();
+  return props.news.topic.toLowerCase().includes(query) ||
+         props.news.shortDetail.toLowerCase().includes(query) ||
+         props.news.fullDetail.toLowerCase().includes(query) ||
+         props.news.reporter.toLowerCase().includes(query);
+});
 
 const handleNewsClick = async () => {
   try {

@@ -94,7 +94,7 @@
     </div>
 
     <div v-else-if="paginatedNews.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <NewsCard v-for="news in paginatedNews" :key="news.id" :news="news" />
+      <NewsCard v-for="news in paginatedNews" :key="news.id" :news="news" :search-query="searchQuery" />
     </div>
     
     <div v-else class="text-center text-gray-500 text-xl py-10">
