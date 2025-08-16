@@ -1,6 +1,21 @@
 <template>
   <div v-if="news" class="container mx-auto p-4 max-w-4xl">
-    <router-link to="/" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&lt; Back to Home</router-link>
+    <router-link
+  to="/"
+  class="group inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mb-4"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-4 w-4 text-gray-500 transition-transform duration-200 group-hover:-translate-x-1"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+  <span class="font-medium">Back to Home</span>
+</router-link>
 
     <div class="bg-white shadow-lg rounded-xl overflow-hidden">
       <div class="p-6">
@@ -72,8 +87,8 @@
             :news="news"
             @submit-vote="handleVoteSubmission"
         />
-
-      </div>
+        
+        </div>
     </div>
   </div>
   <div v-else class="container mx-auto p-4 text-center py-20">
@@ -85,17 +100,23 @@
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useNewsStore } from '../stores/news';
+import { useNotificationStore } from '../stores/notification'; // เพิ่มการ Import นี้
+
 import CommentsSection from '../components/CommentsVotes.vue';
 import VoteSection from '../components/VoteSection.vue';
+// ลบ import ToastNotification ออกจากตรงนี้
 import type { Vote } from '../stores/news';
 
 const route = useRoute();
-const store = useNewsStore();
+const newsStore = useNewsStore();
+const notificationStore = useNotificationStore(); // สร้าง instance ของ store
 
 const newsId = parseInt(route.params.id as string);
-const news = computed(() => store.getNewsById(newsId));
+const news = computed(() => newsStore.getNewsById(newsId));
 
 const activeTab = ref<'comments' | 'vote'>('comments');
+
+// ลบ const toastNotification = ref<...>(null); ออกจากตรงนี้
 
 const handleVoteSubmission = (data: {
   userName: string;
@@ -103,7 +124,7 @@ const handleVoteSubmission = (data: {
   commentText: string;
   imageUrl: string | null;
 }) => {
-  store.addCommentToNews(
+  newsStore.addCommentToNews(
     newsId,
     data.userName || 'Anonymous',
     data.commentText || '',
@@ -111,8 +132,9 @@ const handleVoteSubmission = (data: {
     data.vote
   );
   
-  // Show success message and switch to comments tab
-  alert('Thank you for your vote!');
+  // เรียกใช้ Pinia Store แทนการเรียก component โดยตรง
+  notificationStore.addNotification('Vote submitted successfully.', 'success');
+
   activeTab.value = 'comments';
 };
 </script>
