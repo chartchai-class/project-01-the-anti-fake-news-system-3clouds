@@ -29,6 +29,11 @@ export interface News {
   status?: 'fake' | 'not fake' | 'equal';
 }
 
+export interface VoteSummary {
+  real: number;
+  fake: number;
+}
+
 // 2. สร้าง Pinia Store ในรูปแบบ Setup Store
 export const useNewsStore = defineStore('news', () => {
   // State: ใช้ ref()

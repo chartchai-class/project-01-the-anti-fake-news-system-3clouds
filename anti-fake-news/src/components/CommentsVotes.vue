@@ -1,52 +1,6 @@
 <template>
   <div ref="commentsSection">
-    <div class="bg-gray-100 p-6 rounded-xl mb-8">
-      <div class="mb-4">
-        <h3 class="text-lg font-bold text-gray-800 mb-2">
-          Vote Summary :
-          <span
-            :class="{
-              'bg-red-600': voteSummary.fake > voteSummary.real,
-              'bg-green-600': voteSummary.real > voteSummary.fake,
-              'bg-gray-500': voteSummary.real === voteSummary.fake,
-            }"
-            class="text-white font-bold px-3 py-1 rounded text-sm uppercase ml-2"
-          >
-            {{ fakeVotes > realVotes ? 'FAKE' : realVotes > fakeVotes ? 'REAL' : 'EQUAL' }}
-          </span>
-        </h3>
-      </div>
-
-      <div class="mb-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700">Real</span>
-          <span class="text-sm text-gray-600">{{ realPercentage }}% ({{ realVotes }} votes)</span>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-4">
-          <div
-            class="bg-green-500 h-4 rounded-full transition-all duration-300"
-            :style="{ width: `${realPercentage}%` }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium text-gray-700">Fake</span>
-          <span class="text-sm text-gray-600">{{ fakePercentage }}% ({{ fakeVotes }} votes)</span>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-4">
-          <div
-            class="bg-red-500 h-4 rounded-full transition-all duration-300"
-            :style="{ width: `${fakePercentage}%` }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="text-right border-t pt-3 mt-4">
-        <span class="text-sm font-semibold text-gray-800">Total: {{ totalVotes }} Votes</span>
-      </div>
-    </div>
+    <VoteSummary :vote-summary="voteSummary" />
 
     <h3 class="text-2xl font-bold mb-4 text-gray-800">Comment :</h3>
 
@@ -92,56 +46,13 @@
     </div>
 
     <div v-if="filteredAndSortedComments.length > 0">
-      <div
+      <CommentItem
         v-for="comment in paginatedComments"
         :key="comment.id"
-        class="bg-gray-50 p-4 rounded-lg mb-4 border"
-      >
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center">
-            <div
-              class="w-8 h-8 rounded-full flex items-center justify-center mr-3 border border-gray-300 shadow-sm"
-              :style="{ 'background-color': getProfileColor(comment.user) }"
-            >
-              <span class="text-sm font-bold text-gray-800">{{ comment.user.charAt(0).toUpperCase() }}</span>
-            </div>
-            <p class="font-bold text-gray-800">{{ comment.user }}</p>
-          </div>
-          <div class="text-sm text-gray-500">
-            <span>{{ new Date(comment.time).toLocaleDateString() }}</span>
-            <span class="mx-2">|</span>
-            <span>{{ new Date(comment.time).toLocaleTimeString() }}</span>
-          </div>
-        </div>
-        <div class="ml-11">
-          <p v-if="comment.text" class="text-gray-700 mb-2">{{ comment.text }}</p>
-
-          <div class="flex items-center text-sm mb-1">
-            <span class="text-gray-600">Vote : </span>
-            <span
-              :class="{
-                'text-green-600': comment.vote === 'real',
-                'text-red-600': comment.vote === 'fake'
-              }"
-              class="font-semibold ml-1"
-            >
-              {{ comment.vote === 'real' ? 'Real' : 'Fake' }}
-            </span>
-          </div>
-
-          <div v-if="comment.image" class="flex items-center text-sm mb-2">
-            <span class="text-gray-600">Evidence :</span>
-          </div>
-
-          <img
-            v-if="comment.image"
-            :src="comment.image"
-            alt="Comment Image"
-            class="mt-4 w-full h-auto rounded-lg max-h-64 object-cover cursor-pointer"
-            @click="showFullImage(comment.image)"
-          />
-        </div>
-      </div>
+        :comment="comment"
+        @show-full-image="showFullImage"
+      />
+      
       <Pagination
         :total-items="filteredAndSortedComments.length"
         :items-per-page="commentsPerPage"
@@ -161,7 +72,7 @@
         >
           &times;
         </button>
-        <img :src="selectedImage" alt="Full size comment image" class="max-w-full max-h-screen-75 object-contain rounded-lg shadow-xl" />
+        <img v-if="selectedImage" :src="selectedImage" alt="Full size comment image" class="max-w-full max-h-screen-75 object-contain rounded-lg shadow-xl" />
       </div>
     </div>
   </div>
@@ -170,11 +81,13 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineProps } from 'vue';
 import Pagination from './BasePagination.vue';
-import type { Comment, VoteSummary } from '../stores/news';
+import VoteSummary from './VoteSummary.vue'; // นำเข้าคอมโพเนนต์ใหม่
+import CommentItem from './CommentItem.vue'; // นำเข้าคอมโพเนนต์ใหม่
+import type { Comment, VoteSummary as VoteSummaryType } from '../stores/news';
 
 const props = defineProps<{
   comments: Comment[];
-  voteSummary: VoteSummary;
+  voteSummary: VoteSummaryType;
 }>();
 
 const commentPage = ref<number>(1);
@@ -183,7 +96,6 @@ const filterOption = ref<'all' | 'real' | 'fake'>('all');
 const sortOption = ref<'newest' | 'oldest'>('newest');
 const commentsSection = ref<HTMLElement | null>(null);
 
-// State for the image pop-up
 const showImagePopup = ref<boolean>(false);
 const selectedImage = ref<string | null>(null);
 
@@ -198,13 +110,13 @@ const closePopup = () => {
   selectedImage.value = null;
 };
 
-// Watcher to scroll to the top of the comments section when the page changes
+// Watcher to scroll to the bottom of the page when the page changes
 watch(commentPage, () => {
-  // Use a slight delay to allow the DOM to update before scrolling
   setTimeout(() => {
-    if (commentsSection.value) {
-      commentsSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    window.scrollTo({ 
+      top: document.body.scrollHeight, 
+      behavior: 'smooth' 
+    });
   }, 100);
 });
 
@@ -212,18 +124,6 @@ watch(commentPage, () => {
 watch([filterOption, sortOption], () => {
   commentPage.value = 1;
 });
-
-// ฟังก์ชันสำหรับสร้างสีพาสเทลที่สดใสจากชื่อผู้ใช้
-const getProfileColor = (username: string) => {
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = username.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const hue = hash % 360;
-  const saturation = 70;
-  const lightness = 85;
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-};
 
 const commentsWithContent = computed(() =>
   props.comments.filter(
@@ -255,21 +155,5 @@ const paginatedComments = computed<Comment[]>(() => {
   const start = (commentPage.value - 1) * commentsPerPage.value;
   const end = start + commentsPerPage.value;
   return filteredAndSortedComments.value.slice(start, end);
-});
-
-const fakeVotes = computed(() => props.voteSummary.fake || 0);
-const realVotes = computed(() => props.voteSummary.real || 0);
-const totalVotes = computed(() => fakeVotes.value + realVotes.value);
-
-const realPercentage = computed(() => {
-  const total = totalVotes.value;
-  if (total === 0) return 0;
-  return Math.round((realVotes.value / total) * 100);
-});
-
-const fakePercentage = computed(() => {
-  const total = totalVotes.value;
-  if (total === 0) return 0;
-  return Math.round((fakeVotes.value / total) * 100);
 });
 </script>
