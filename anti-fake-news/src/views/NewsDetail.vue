@@ -170,7 +170,7 @@ const isNavigationLoading = ref(false);
 
 const loadingProgress = ref(0);
 // let progressInterval: NodeJS.Timeout | null = null;
-let progressInterval: number | null = null;
+let progressInterval: ReturnType<typeof setTimeout> | null = null
 
 const startLoadingProgress = () => {
   loadingProgress.value = 0;
