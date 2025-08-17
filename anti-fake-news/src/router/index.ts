@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../views/HomePage.vue'
 import NewsDetail from '../views/NewsDetail.vue'
+import AddNews from '../views/AddNews.vue'
 
 
 const router = createRouter({
@@ -16,6 +17,10 @@ const router = createRouter({
       name: 'news-detail',
       component: NewsDetail,
     },
+    { path: '/add-news', 
+      name: 'addNews', 
+      component: AddNews ,
+    }
   ],
 })
 

@@ -1,5 +1,4 @@
 <template>
-  <!-- Loading state with progress bar -->
   <div v-if="isLoading" class="container mx-auto p-4 max-w-4xl">
     <div class="text-center py-20">
       <div class="inline-flex flex-col items-center w-full max-w-md">
@@ -8,7 +7,6 @@
             class="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 transition-all duration-300 rounded-full relative"
             :style="{ width: `${loadingProgress}%` }"
           >
-            <!-- Shimmer effect -->
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-shimmer"></div>
           </div>
         </div>
@@ -106,7 +104,6 @@
           </div>
         </div>
 
-        <!-- Tab Content with Loading States -->
         <div v-if="isTabSwitching" class="text-center py-8">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
           <span class="text-gray-500">Loading...</span>
@@ -128,7 +125,6 @@
     </div>
   </div>
   
-  <!-- News not found -->
   <div v-else class="container mx-auto p-4 text-center py-20">
     <div class="flex flex-col items-center">
       <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,22 +143,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'; // Removed unused nextTick
-import { useRoute } from 'vue-router'; // Removed unused useRouter
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useNewsStore } from '../stores/news';
 import { useNotificationStore } from '../stores/notification';
 import CommentsSection from '../components/CommentsVotes.vue';
 import VoteSection from '../components/VoteSection.vue';
-
-// Define the Vote type if not exported from stores/news
-type Vote = 'fake' | 'real';
+import type { Vote } from '../stores/news';
 
 const route = useRoute();
 const newsStore = useNewsStore();
 const notificationStore = useNotificationStore();
 
-const newsId = parseInt(route.params.id as string);
+// **แก้ไข: ใช้ parseFloat เพื่อรองรับ ID ที่เป็นตัวเลขทศนิยม**
+const newsId = parseFloat(route.params.id as string);
+
+// **แก้ไข: ดึงข้อมูลข่าวโดยใช้ Getter จาก Store**
 const news = computed(() => newsStore.getNewsById(newsId));
+
 const activeTab = ref<'comments' | 'vote'>('comments');
 const isLoading = ref(false);
 const isTabSwitching = ref(false);
@@ -171,7 +169,8 @@ const isNavigationLoading = ref(false);
 
 
 const loadingProgress = ref(0);
-let progressInterval: NodeJS.Timeout | null = null;
+// let progressInterval: NodeJS.Timeout | null = null;
+let progressInterval: number | null = null;
 
 const startLoadingProgress = () => {
   loadingProgress.value = 0;
@@ -195,27 +194,12 @@ const finishLoadingProgress = () => {
   }
 };
 
-
-// Preserve the filter state when going back to home
-const backToHomeUrl = computed(() => {
-  const referrer = document.referrer;
-  const currentOrigin = window.location.origin;
-  
-  // If user came from the home page with filters, preserve them
-  if (referrer.includes(currentOrigin) && referrer.includes('?')) {
-    const url = new URL(referrer);
-    return { path: '/', query: Object.fromEntries(url.searchParams) };
-  }
-  
-  return '/';
-});
-
 const loadNewsDetail = async () => {
   try {
     isLoading.value = true;
     startLoadingProgress();
     
-    // Add a minimum loading time for better UX
+    // **เปลี่ยนมาใช้ fetchNews() จาก Store**
     await Promise.all([
       newsStore.fetchNews(),
       new Promise(resolve => setTimeout(resolve, 800))
@@ -233,6 +217,21 @@ const loadNewsDetail = async () => {
     }, 400); // Small delay to show 100%
   }
 };
+
+
+// Preserve the filter state when going back to home
+const backToHomeUrl = computed(() => {
+  const referrer = document.referrer;
+  const currentOrigin = window.location.origin;
+  
+  // If user came from the home page with filters, preserve them
+  if (referrer.includes(currentOrigin) && referrer.includes('?')) {
+    const url = new URL(referrer);
+    return { path: '/', query: Object.fromEntries(url.searchParams) };
+  }
+  
+  return '/';
+});
 
 // Watch for route changes to handle navigation loading
 watch(() => route.query.loading, (newVal) => {
@@ -279,7 +278,7 @@ const handleVoteSubmission = async (data: {
     );
     
     // Simulate submission processing
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve,300));
     
     notificationStore.addNotification('Vote submitted successfully.', 'success');
     

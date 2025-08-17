@@ -14,7 +14,15 @@
           </span>
         </router-link>
 
-        <div class="w-8 h-8"></div>
+        <router-link 
+          to="/add-news" 
+          class="flex items-center space-x-1 px-2 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-xs sm:text-sm sm:space-x-2 sm:px-3 md:px-4 md:py-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+          </svg>
+          <span class="font-medium hidden xs:inline sm:inline">Add News</span>
+        </router-link>
       </div>
     </div>
   </nav>

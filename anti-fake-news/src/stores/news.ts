@@ -1,7 +1,6 @@
-// src/stores/news.ts
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue'; // Import ref และ computed เข้ามา
-import apiClient from '../services/NewsService'; // Import apiClient เข้ามาใช้งาน
+import { ref, computed } from 'vue';
+import apiClient from '../services/NewsService';
 
 // 1. กำหนด Interfaces สำหรับโครงสร้างข้อมูล (เหมือนเดิม)
 export interface Comment {
@@ -25,6 +24,7 @@ export interface News {
     real: number;
     fake: number;
   };
+  totalVotes: number;
   comments: Comment[];
   status?: 'fake' | 'not fake' | 'equal';
 }
@@ -34,14 +34,24 @@ export interface VoteSummary {
   fake: number;
 }
 
+export type Vote = 'real' | 'fake';
+
 // 2. สร้าง Pinia Store ในรูปแบบ Setup Store
 export const useNewsStore = defineStore('news', () => {
   // State: ใช้ ref()
   const allNews = ref<News[]>([]);
+  // เพิ่ม State ใหม่สำหรับข่าวที่ยังไม่ถูกบันทึก
+  const unsavedNews = ref<News[]>([]); 
 
   // Getters: ใช้ computed()
+  // รวมข่าวทั้งหมดเข้าด้วยกันก่อนทำการ Filter
+  const getCombinedNews = computed(() => {
+    return [...allNews.value, ...unsavedNews.value];
+  });
+
+  // แก้ไข Getter เพื่อให้สามารถหาข่าวจากทั้ง API และข่าวใหม่ได้
   const getNewsById = computed(() => (id: number): News | undefined => {
-    const newsItem = allNews.value.find((news) => news.id === id);
+    const newsItem = getCombinedNews.value.find((news) => news.id === id);
     if (!newsItem) return undefined;
 
     let calculatedStatus: 'fake' | 'not fake' | 'equal';
@@ -56,8 +66,9 @@ export const useNewsStore = defineStore('news', () => {
     return { ...newsItem, status: calculatedStatus };
   });
 
+  // แก้ไข Getter เพื่อให้สามารถ Filter ข่าวจากทั้งหมดได้
   const getNewsWithStatus = computed(() => (statusFilter: 'all' | 'fake' | 'not fake' | 'equal'): News[] => {
-    const allNewsWithStatus = allNews.value.map((news) => {
+    const allNewsWithStatus = getCombinedNews.value.map((news) => {
       let calculatedStatus: 'fake' | 'not fake' | 'equal';
       if (news.voteSummary.real > news.voteSummary.fake) {
         calculatedStatus = 'not fake';
@@ -66,7 +77,6 @@ export const useNewsStore = defineStore('news', () => {
       } else {
         calculatedStatus = 'equal';
       }
-
       return { ...news, status: calculatedStatus };
     });
 
@@ -87,6 +97,13 @@ export const useNewsStore = defineStore('news', () => {
     }
   }
 
+  // เพิ่ม Action ใหม่สำหรับเพิ่มข่าวที่ยังไม่ถูกบันทึก
+  function addUnsavedNews(newNews: Omit<News, 'id'>) {
+    // สร้าง ID ชั่วคราวที่เป็นค่าติดลบเพื่อไม่ให้ซ้ำกับ ID จาก API
+    const tempId = (Math.random() * -1000000) - Date.now();
+    unsavedNews.value.push({ ...newNews, id: tempId });
+  }
+
   function addCommentToNews(
     newsId: number,
     user: string,
@@ -94,7 +111,8 @@ export const useNewsStore = defineStore('news', () => {
     image: string | null,
     vote: 'real' | 'fake',
   ) {
-    const newsItem = allNews.value.find((n) => n.id === newsId);
+    // ค้นหาข่าวจากทั้งสองแหล่งข้อมูล
+    const newsItem = getNewsById.value(newsId);
     if (!newsItem) {
       console.error('News item not found!');
       return;
@@ -122,5 +140,6 @@ export const useNewsStore = defineStore('news', () => {
   }
 
   // 3. return ทุกอย่างที่ต้องการให้ Component เรียกใช้ได้
-  return { allNews, getNewsById, getNewsWithStatus, fetchNews, addCommentToNews };
+  // เพิ่ม unsavedNews และ addUnsavedNews ใน return ด้วย
+  return { allNews, unsavedNews, getCombinedNews, getNewsById, getNewsWithStatus, fetchNews, addCommentToNews, addUnsavedNews };
 });
