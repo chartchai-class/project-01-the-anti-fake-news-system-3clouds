@@ -17,4 +17,5 @@ import Navbar from './components/TheNavbar.vue';
 import ToastNotification from './components/ToastNotification.vue';
 import ScrollButtons from './components/ScrollButtons.vue';
 import LoadingProgressBar from './components/LoadingProgressBar.vue';
+import { SpeedInsights } from "@vercel/speed-insights/vue"
 </script>
