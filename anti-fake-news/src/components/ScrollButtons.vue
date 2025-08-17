@@ -1,12 +1,10 @@
 <template>
   <div>
-    <!-- Scroll Progress Bar -->
     <div
       class="fixed bottom-0 left-0 h-1 bg-gradient-to-r from-sky-300 via-pink-200 to-violet-300 z-50 transition-all duration-300"
       :style="{ width: scrollProgress + '%' }"
     ></div>
 
-    <!-- Scroll to Top Button -->
     <transition
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="translate-y-4 opacity-0"
@@ -38,7 +36,6 @@
       </button>
     </transition>
 
-    <!-- Scroll to Bottom Button -->
     <transition
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="translate-y-4 opacity-0"
@@ -70,7 +67,6 @@
       </button>
     </transition>
 
-    <!-- Scroll Progress Indicator -->
     <transition
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="opacity-0 scale-90"
@@ -90,48 +86,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const showScrollToTop = ref(false)
-const scrollProgress = ref(0)
-const showPercentage = ref(false)
-let percentageTimer: number
+const showScrollToTop = ref(false);
+const scrollProgress = ref(0);
+const showPercentage = ref(false);
+let percentageTimer: number;
 
 const handleScroll = () => {
-  const scrollTop = window.pageYOffset
-  const docHeight = document.body.scrollHeight - window.innerHeight
+  const scrollTop = window.pageYOffset;
+  const docHeight = document.body.scrollHeight - window.innerHeight;
 
-  showScrollToTop.value = scrollTop > 200
-  scrollProgress.value = (scrollTop / docHeight) * 100
+  showScrollToTop.value = scrollTop > 200;
 
-  // Show percentage when scrolling
-  showPercentage.value = true
-  clearTimeout(percentageTimer)
+  // Added check to prevent division by zero
+  if (docHeight > 0) {
+    scrollProgress.value = (scrollTop / docHeight) * 100;
+  } else {
+    // If the document is too short to scroll, set progress to 0.
+    scrollProgress.value = 0;
+  }
+
+  // Show percentage when scrolling and hide after a delay
+  showPercentage.value = true;
+  clearTimeout(percentageTimer);
   percentageTimer = window.setTimeout(() => {
-    showPercentage.value = false
-  }, 1500)
-}
+    showPercentage.value = false;
+  }, 1500);
+};
 
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
     behavior: 'smooth',
-  })
-}
+  });
+};
 
 const scrollToBottom = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
     behavior: 'smooth',
-  })
-}
+  });
+};
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
+  // Call handleScroll once on mount to initialize progress and button visibility
+  handleScroll();
+  window.addEventListener('scroll', handleScroll);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleScroll)
-  clearTimeout(percentageTimer)
-})
+  window.removeEventListener('scroll', handleScroll);
+  clearTimeout(percentageTimer);
+});
 </script>
