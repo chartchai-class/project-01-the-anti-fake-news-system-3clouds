@@ -1,4 +1,5 @@
 <template>
+  <SpeedInsights />
   <div class="bg-gray-100 min-h-screen font-sans antialiased text-gray-800">
     <!-- Loading Progress Bar -->
     <LoadingProgressBar />
