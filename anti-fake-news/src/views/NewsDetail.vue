@@ -149,7 +149,8 @@ import { useNewsStore } from '../stores/news';
 import { useNotificationStore } from '../stores/notification';
 import CommentsSection from '../components/CommentsVotes.vue';
 import VoteSection from '../components/VoteSection.vue';
-import type { Vote } from '../stores/news';
+import type { LocationQueryValue } from 'vue-router';
+import type { Vote } from '../types/news';
 
 const route = useRoute();
 const newsStore = useNewsStore();
@@ -235,11 +236,14 @@ const backToHomeUrl = computed(() => {
 });
 
 // Watch for route changes to handle navigation loading
-watch(() => route.query.loading, (newVal: string | string[] | undefined) => {
-  if (newVal === 'true') {
-    isNavigationLoading.value = true;
+watch(
+  () => route.query.loading,
+  (newVal: LocationQueryValue | LocationQueryValue[]) => {
+    if (newVal === 'true') {
+      isNavigationLoading.value = true;
+    }
   }
-});
+);
 
 const switchTab = async (tab: 'comments' | 'vote') => {
   if (activeTab.value === tab || isTabSwitching.value) return;
