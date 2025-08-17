@@ -95,7 +95,9 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 const showScrollToTop = ref(false);
 const scrollProgress = ref(0);
 const showPercentage = ref(false);
-let percentageTimer: number; 
+
+let percentageTimer: ReturnType<typeof setTimeout>;
+
 
 const handleScroll = () => {
   const scrollTop = window.pageYOffset;

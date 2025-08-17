@@ -169,8 +169,9 @@ const isNavigationLoading = ref(false);
 
 
 const loadingProgress = ref(0);
+
 // let progressInterval: NodeJS.Timeout | null = null;
-let progressInterval: number | null = null;
+let progressInterval: ReturnType<typeof setInterval> | null = null;
 
 const startLoadingProgress = () => {
   loadingProgress.value = 0;
@@ -234,7 +235,7 @@ const backToHomeUrl = computed(() => {
 });
 
 // Watch for route changes to handle navigation loading
-watch(() => route.query.loading, (newVal) => {
+watch(() => route.query.loading, (newVal: string | string[] | undefined) => {
   if (newVal === 'true') {
     isNavigationLoading.value = true;
   }
