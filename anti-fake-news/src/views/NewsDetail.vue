@@ -48,7 +48,7 @@
           >
             {{
               news.status === 'fake'
-                ? 'Fake News'
+                ? 'Fake'
                 : news.status === 'not fake'
                   ? 'Real'
                   : 'Equal'
