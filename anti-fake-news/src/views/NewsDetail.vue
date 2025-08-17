@@ -147,15 +147,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'; // Removed unused nextTick
-import { useRoute } from 'vue-router'; // Removed unused useRouter
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useNewsStore } from '../stores/news';
 import { useNotificationStore } from '../stores/notification';
 import CommentsSection from '../components/CommentsVotes.vue';
 import VoteSection from '../components/VoteSection.vue';
-
-// Define the Vote type if not exported from stores/news
-type Vote = 'fake' | 'real';
+import type { LocationQueryValue } from 'vue-router';
+import type { Vote } from '../types/news';
 
 const route = useRoute();
 const newsStore = useNewsStore();
@@ -237,11 +236,14 @@ const loadNewsDetail = async () => {
 };
 
 // Watch for route changes to handle navigation loading
-watch(() => route.query.loading, (newVal: string | string[] | undefined) => {
-  if (newVal === 'true') {
-    isNavigationLoading.value = true;
+watch(
+  () => route.query.loading,
+  (newVal: LocationQueryValue | LocationQueryValue[]) => {
+    if (newVal === 'true') {
+      isNavigationLoading.value = true;
+    }
   }
-});
+);
 
 const switchTab = async (tab: 'comments' | 'vote') => {
   if (activeTab.value === tab || isTabSwitching.value) return;
