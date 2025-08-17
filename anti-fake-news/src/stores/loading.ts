@@ -5,7 +5,7 @@ export const useLoadingStore = defineStore('loading', () => {
   const isLoading = ref(false);
   const progress = ref(0);
   
-  let progressInterval: number | null = null;
+  let progressInterval: ReturnType<typeof setInterval> | null = null;
 
   const startLoading = () => {
     isLoading.value = true;
