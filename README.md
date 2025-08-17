@@ -4,16 +4,15 @@
 - **Group Name:** 3clouds
 
 ### Members
-| Student ID | Name |
-|------------|------|
-| 662115028 | Nuanwan Wongrat    |
-| 662115042 | Rattikan Muangmoon |
-| 662115053 | Muanpee Thising    |
-
+| Student ID | Name                 | Section | GitHub Username |
+|------------|----------------------|---------|-----------------|
+| 662115028 | Nuanwan Wongrat       | 702     | Nuanwan028      |
+| 662115042 | Rattikan Muangmoon    | 702     | Rattikan-P      |
+| 662115053 | Muanpee Thising       | 702     | muanpee         |
 
 ---
 
 ## 🚀 Live Demo
-🌐 Deployed on Vercel: [Deployed Website URL]
+🌐 Deployed on Vercel: https://project-01-the-anti-fake-news-system-3clouds-j9gd-33lp4jtvd.vercel.app/
 
-📺 Demo Video (2–3 minutes): [Video URL]
+📺 Demo Video (2–3 minutes): https://www.youtube.com/watch?v=ExqDidWGm5M
