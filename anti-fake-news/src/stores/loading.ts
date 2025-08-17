@@ -5,7 +5,7 @@ export const useLoadingStore = defineStore('loading', () => {
   const isLoading = ref(false);
   const progress = ref(0);
   
-  let progressInterval: NodeJS.Timeout | null = null;
+  let progressInterval: number | null = null;
 
   const startLoading = () => {
     isLoading.value = true;
