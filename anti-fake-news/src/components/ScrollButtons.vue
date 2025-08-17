@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Scroll Progress Bar -->
-    <div 
+    <div
       class="fixed bottom-0 left-0 h-1 bg-gradient-to-r from-sky-300 via-pink-200 to-violet-300 z-50 transition-all duration-300"
       :style="{ width: scrollProgress + '%' }"
     ></div>
@@ -90,48 +90,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const showScrollToTop = ref(false);
-const scrollProgress = ref(0);
-const showPercentage = ref(false);
-let percentageTimer: number; 
+const showScrollToTop = ref(false)
+const scrollProgress = ref(0)
+const showPercentage = ref(false)
+let percentageTimer: number
 
 const handleScroll = () => {
-  const scrollTop = window.pageYOffset;
-  const docHeight = document.body.scrollHeight - window.innerHeight;
-  
-  showScrollToTop.value = scrollTop > 200;
-  scrollProgress.value = (scrollTop / docHeight) * 100;
-  
+  const scrollTop = window.pageYOffset
+  const docHeight = document.body.scrollHeight - window.innerHeight
+
+  showScrollToTop.value = scrollTop > 200
+  scrollProgress.value = (scrollTop / docHeight) * 100
+
   // Show percentage when scrolling
-  showPercentage.value = true;
-  clearTimeout(percentageTimer);
-  percentageTimer = setTimeout(() => {
-    showPercentage.value = false;
-  }, 1500);
-};
+  showPercentage.value = true
+  clearTimeout(percentageTimer)
+  percentageTimer = window.setTimeout(() => {
+    showPercentage.value = false
+  }, 1500)
+}
 
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
     behavior: 'smooth',
-  });
-};
+  })
+}
 
 const scrollToBottom = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
     behavior: 'smooth',
-  });
-};
+  })
+}
 
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
+  window.addEventListener('scroll', handleScroll)
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleScroll);
-  clearTimeout(percentageTimer);
-});
+  window.removeEventListener('scroll', handleScroll)
+  clearTimeout(percentageTimer)
+})
 </script>
