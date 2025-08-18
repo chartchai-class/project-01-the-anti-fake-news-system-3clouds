@@ -24,9 +24,9 @@
 This project uses **MockAPI** as a mock database.  
 We chose this approach instead of storing `db.json` directly in the repository due to GitHub's file size limitations.
 
-## Public Endpoint
+## 🌎 Public Endpoint
 
-News: https://689ed0883fed484cf8780f9e.mockapi.io/api/v1/news
+https://689ed0883fed484cf8780f9e.mockapi.io/api/v1/news
 
-⚠️ Note: The MockAPI dashboard link (https://mockapi.io/projects/689ed0883fed484cf8780f9e)
-requires login and is not accessible to the public.
+![Dashboard MockAPI](/DashboardMockAPI.png)
+<sub> ⚠️ Note: The MockAPI dashboard link (https://mockapi.io/projects/689ed0883fed484cf8780f9f) requires login and is not accessible to the public.
