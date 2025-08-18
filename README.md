@@ -16,3 +16,17 @@
 🌐 Deployed on Vercel: https://project-01-the-anti-fake-news-system-3clouds-j9gd-33lp4jtvd.vercel.app/
 
 📺 Demo Video (2–3 minutes): https://www.youtube.com/watch?v=ExqDidWGm5M
+
+---
+
+## 📊 Mock Data
+
+This project uses **MockAPI** as a mock database.  
+We chose this approach instead of storing `db.json` directly in the repository due to GitHub's file size limitations.
+
+## Public Endpoint
+
+News: https://689ed0883fed484cf8780f9e.mockapi.io/api/v1/news
+
+⚠️ Note: The MockAPI dashboard link (https://mockapi.io/projects/689ed0883fed484cf8780f9e)
+requires login and is not accessible to the public.
