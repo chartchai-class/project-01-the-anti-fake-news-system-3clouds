@@ -12,9 +12,9 @@
 ### 👩‍💻 Members
 | Student ID | Name               | Section | GitHub Username |
 |------------|--------------------|---------|-----------------|
-| 662115028  | Nuanwan Wongrat    | 702     | Nuanwan028 |
-| 662115042  | Rattikan Muangmoon | 702     | Rattikan-P
-| 662115053  | Muanpee Thising    | 702     | muanpee
+| 662115028  | Nuanwan Wongrat    | 702     | [Nuanwan028](https://github.com/Nuanwan028) |
+| 662115042  | Rattikan Muangmoon | 702     | [Rattikan-P](https://github.com/Rattikan-P) |
+| 662115053  | Muanpee Thising    | 702     | [muanpee](https://github.com/muanpee) |
 
 ---
 
